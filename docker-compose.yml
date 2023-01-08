@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+
+  db:
+    image: mongo
+    restart: always
+    container_name: olearning-db
+    environment:
+      - MONGO_INITDB_DATABASE=flipped
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - app
+
+
+  be:
+    build:
+      context: ./be
+    image: olearning-be
+    restart: always
+    container_name: olearning-be
+    depends_on:
+      - "db"
+    ports:
+      - "5000:5000"
+    networks:
+      - app
+
+  fe:
+    build:
+      context: ./fe
+    image: olearning-fe
+    restart: always
+    container_name: olearning-fe
+    ports:
+      - "3000:3000"
+    networks:
+      - app
+
+volumes:
+  mongodb_data:
+
+networks:
+  app:
+    driver: bridge
